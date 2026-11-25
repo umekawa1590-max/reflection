@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#173b67">
+<title>PE REFLECTION</title>
+<style>
+:root{--navy:#173b67;--blue:#2865a5;--pale:#edf4fb;--ink:#1f2937;--muted:#667085;--line:#d9e1ea;--bg:#f5f7fa;--green:#16845b;--red:#c43d3d;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
+header{background:var(--navy);color:white;padding:18px 20px}header .head{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}header h1{font-size:22px;letter-spacing:.04em;margin:0}header p{margin:2px 0 0;font-size:12px;opacity:.85}
+main{max-width:1100px;margin:24px auto;padding:0 16px 48px}.card{background:white;border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px #172b4d08}
+h2{font-size:19px;margin:0 0 14px;color:var(--navy)}h3{font-size:16px;margin:18px 0 8px}.muted,.hint{color:var(--muted);font-size:13px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+label{display:block;font-weight:650;font-size:14px;margin:0 0 6px}input,select,textarea{width:100%;font:inherit;padding:11px 12px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;color:var(--ink)}textarea{min-height:100px;resize:vertical}input:focus,select:focus,textarea:focus{outline:3px solid #2865a522;border-color:var(--blue)}
+.field{margin-bottom:14px}.btnrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}.btn{border:0;border-radius:9px;padding:10px 15px;font:inherit;font-weight:650;cursor:pointer;background:var(--blue);color:white}.btn.secondary{background:#e8eef5;color:var(--navy)}.btn.green{background:var(--green)}.btn.red{background:#fff0f0;color:var(--red);border:1px solid #f0caca}.btn:disabled{opacity:.5;cursor:not-allowed}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.tab{border:1px solid var(--line);background:white;border-radius:999px;padding:8px 15px;cursor:pointer;font-weight:650}.tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.hidden{display:none!important}.notice{padding:12px 14px;border-radius:9px;background:var(--pale);font-size:13px;margin:10px 0}.success{background:#eaf7f0;color:#176343}.warning{background:#fff6e5;color:#855b13}.danger{background:#fff0f0;color:#9e3030}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#f3f6f9;color:#344054;font-weight:700}.tablewrap{overflow-x:auto}.stat{background:#f3f6fa;border-radius:10px;padding:14px;text-align:center}.stat strong{display:block;font-size:26px;color:var(--navy)}.stat span{font-size:12px;color:var(--muted)}
+.chip{display:inline-block;background:#edf2f7;border-radius:999px;padding:3px 9px;font-size:12px;margin:2px}.bar{height:10px;background:#e7edf3;border-radius:99px;overflow:hidden}.bar>span{display:block;height:100%;background:#2c8b67}
+.student-item{display:flex;gap:8px;align-items:center;margin:7px 0}.student-item input{flex:1}.small{font-size:12px}.right{margin-left:auto}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:680px){.grid,.grid3{grid-template-columns:1fr}.card{padding:16px}header .head{align-items:flex-start;flex-direction:column}main{margin-top:14px}.btn{flex:1 1 auto}}
+</style>
+</head>
+<body>
+<header><div class="head"><div><h1>PE REFLECTION</h1><p>体育授業 振り返り・集計アプリ</p></div><div class="small">HTML単体版 / ファイル共有方式</div></div></header>
+<main>
+  <div class="tabs">
+    <button class="tab active" data-tab="student">生徒ページ</button>
+    <button class="tab" data-tab="teacher">先生ページ</button>
+  </div>
+
+  <section id="studentPage">
+    <div class="card">
+      <h2>クラス設定ファイルの読み込み</h2>
+      <p class="muted">先生から配布された「クラス設定ファイル（JSON）」を最初に読み込んでください。読み込み後、この端末で振り返りを入力できます。</p>
+      <div class="btnrow">
+        <button class="btn secondary" id="studentConfigBtn">クラス設定ファイルを読み込む</button>
+        <input type="file" id="studentConfigFile" accept=".json,application/json" class="hidden">
+      </div>
+      <div id="studentConfigStatus" class="notice">クラス設定ファイルはまだ読み込まれていません。</div>
+    </div>
+    <div id="studentWork" class="hidden">
+      <div class="card">
+        <h2>授業を選択</h2>
+        <div class="grid">
+          <div class="field"><label for="studentUnit">単元名</label><select id="studentUnit"></select></div>
+          <div class="field"><label for="studentLesson">授業時数</label><select id="studentLesson"></select></div>
+        </div>
+        <div class="field"><label for="studentName">自分の名前</label><select id="studentName"></select></div>
+        <div id="existingHint" class="hint"></div>
+      </div>
+      <div class="card">
+        <h2>今日の振り返り</h2>
+        <div class="field">
+          <label for="challenge">① 今日の課題</label>
+          <textarea id="challenge" placeholder="今日の授業で取り組む課題を入力してください"></textarea>
+          <div class="btnrow"><button class="btn secondary voice" data-target="challenge">音声入力</button></div>
+        </div>
+        <div class="field">
+          <label for="selfEval">② 自己評価</label>
+          <select id="selfEval"><option value="">選択してください</option><option value="A">A：よくできた</option><option value="B">B：だいたいできた</option><option value="C">C：課題が残った</option></select>
+        </div>
+        <div class="field">
+          <label for="reflection">③ 今日分かったこと・次回頑張りたいこと</label>
+          <textarea id="reflection" placeholder="分かったことや次回に向けた目標を入力してください"></textarea>
+          <div class="btnrow"><button class="btn secondary voice" data-target="reflection">音声入力</button></div>
+        </div>
+        <div class="field">
+          <label for="mvpName">④ 今日のMVP</label>
+          <select id="mvpName"></select>
+        </div>
+        <div class="field">
+          <label for="mvpReason">MVPに選んだ理由</label>
+          <textarea id="mvpReason" placeholder="選んだ理由を入力してください"></textarea>
+          <div class="btnrow"><button class="btn secondary voice" data-target="mvpReason">音声入力</button></div>
+        </div>
+        <div class="btnrow">
+          <button class="btn green" id="saveReflection">この振り返りを保存</button>
+          <button class="btn" id="exportStudent">提出ファイルを書き出す</button>
+        </div>
+        <div id="studentMessage" class="notice hidden"></div>
+      </div>
+      <div class="card">
+        <h2>自分の記録</h2>
+        <p class="muted">この端末に保存されている自分の振り返りです。端末やブラウザのデータを消すと記録も消えるため、提出ファイルを書き出して保管してください。</p>
+        <div id="myRecords"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="teacherPage" class="hidden">
+    <div id="teacherLogin" class="card">
+      <h2>先生ページ</h2>
+      <p class="muted">先生用パスワードを入力してください。</p>
+      <div class="grid">
+        <div class="field"><label for="teacherPasswordInput">パスワード</label><input id="teacherPasswordInput" type="password" autocomplete="current-password" placeholder="パスワード"></div>
+        <div class="field" style="align-self:end"><button class="btn" id="teacherLoginBtn">ログイン</button></div>
+      </div>
+      <div id="loginMessage" class="notice hidden"></div>
+      <p class="hint">初期パスワードは <strong>pe2026</strong> です。ログイン後に必ず変更してください。</p>
+    </div>
+    <div id="teacherDashboard" class="hidden">
+      <div class="card">
+        <div class="section-title"><h2>先生メニュー</h2><button class="btn secondary" id="logoutBtn">ログアウト</button></div>
+        <div class="tabs" id="teacherTabs">
+          <button class="tab active" data-panel="setupPanel">クラス設定</button>
+          <button class="tab" data-panel="dataPanel">提出・集計</button>
+          <button class="tab" data-panel="securityPanel">パスワード</button>
+        </div>
+      </div>
+      <div id="setupPanel" class="teacherPanel">
+        <div class="card">
+          <h2>クラス情報</h2>
+          <div class="grid">
+            <div class="field"><label for="className">クラス名</label><input id="className" placeholder="例：2年1組"></div>
+            <div class="field"><label for="unitName">単元名</label><input id="unitName" placeholder="例：器械運動（跳び箱運動）"></div>
+          </div>
+          <div class="field"><label for="lessonCount">授業時数</label><input id="lessonCount" type="number" min="1" max="100" value="8"></div>
+          <div class="field">
+            <div class="section-title"><label>生徒名簿</label><button class="btn secondary" id="addStudent">生徒を追加</button></div>
+            <div id="rosterEditor"></div>
+            <p class="hint">生徒名は1人ずつ入力してください。名簿を変更した場合は、クラス設定ファイルを再度配布してください。</p>
+          </div>
+          <div class="btnrow">
+            <button class="btn green" id="saveClass">設定を保存</button>
+            <button class="btn" id="exportConfig">クラス設定ファイルを書き出す</button>
+          </div>
+          <div id="setupMessage" class="notice hidden"></div>
+        </div>
+        <div class="card">
+          <h2>この端末のデータ管理</h2>
+          <p class="muted">先生端末に読み込んだ提出データとクラス設定をバックアップできます。</p>
+          <div class="btnrow">
+            <button class="btn secondary" id="backupTeacher">先生データをバックアップ</button>
+            <button class="btn secondary" id="restoreTeacherBtn">バックアップを復元</button>
+            <input type="file" id="restoreTeacherFile" accept=".json,application/json" class="hidden">
+          </div>
+          <div id="backupMessage" class="notice hidden"></div>
+        </div>
+      </div>
+      <div id="dataPanel" class="teacherPanel hidden">
+        <div class="card">
+          <h2>生徒の提出ファイルを読み込む</h2>
+          <p class="muted">生徒から集めたJSONファイルを複数選択して、一度に読み込めます。同じ記録IDは重複登録せず、再提出された場合は更新します。</p>
+          <div class="btnrow"><button class="btn" id="importSubmissionsBtn">提出ファイルを選択</button><input type="file" id="submissionFiles" accept=".json,application/json" multiple class="hidden"></div>
+          <div id="importMessage" class="notice hidden"></div>
+        </div>
+        <div class="card">
+          <h2>集計する授業</h2>
+          <div class="grid">
+            <div class="field"><label for="filterUnit">単元</label><select id="filterUnit"></select></div>
+            <div class="field"><label for="filterLesson">授業時数</label><select id="filterLesson"></select></div>
+          </div>
+          <div id="summaryArea"></div>
+          <div class="btnrow">
+            <button class="btn secondary" id="exportCsv">この授業のCSVを書き出す</button>
+            <button class="btn secondary" id="exportAllCsv">全記録のCSVを書き出す</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2>個別の振り返り</h2>
+          <div class="field"><label for="recordStudentFilter">生徒</label><select id="recordStudentFilter"></select></div>
+          <div id="individualRecords"></div>
+        </div>
+      </div>
+      <div id="securityPanel" class="teacherPanel hidden">
+        <div class="card">
+          <h2>先生ページのパスワード変更</h2>
+          <div class="field"><label for="oldPassword">現在のパスワード</label><input id="oldPassword" type="password"></div>
+          <div class="field"><label for="newPassword">新しいパスワード</label><input id="newPassword" type="password"></div>
+          <div class="field"><label for="confirmPassword">新しいパスワード（確認）</label><input id="confirmPassword" type="password"></div>
+          <button class="btn" id="changePassword">パスワードを変更</button>
+          <div id="passwordMessage" class="notice hidden"></div>
+          <div class="notice warning">このパスワードはブラウザ内に保存されます。HTMLのソースやブラウザの保存データを調べれば確認できるため、強固なセキュリティではありません。重要な個人情報を守るための認証としては使用しないでください。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>PE REFLECTION / オフライン対応HTML単体版</footer>
+<script>
+"use strict";
+const DB_KEY="pe_reflection_teacher_v1";
+const STUDENT_KEY="pe_reflection_student_v1";
+const PASS_KEY="pe_reflection_password_v1";
+const DEFAULT_PASS="pe2026";
+let teacherData=load(DB_KEY,{classInfo:{className:"",students:[],units:[]},records:[]});
+let studentData=load(STUDENT_KEY,{config:null,records:[]});
+let loggedIn=false;
+let activeTeacherPanel="setupPanel";
+function load(key,fallback){try{const x=localStorage.getItem(key);return x?JSON.parse(x):fallback}catch(e){return fallback}}
+function save(key,value){localStorage.setItem(key,JSON.stringify(value))}
+function uid(){return "id-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function download(name,content,type="application/json"){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function readJsonFile(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{try{resolve(JSON.parse(r.result))}catch(e){reject(new Error("JSONファイルを読み取れません。ファイルが正しいか確認してください。"))}};r.onerror=()=>reject(new Error("ファイルを読み込めませんでした。"));r.readAsText(file,"UTF-8")})}
+function notice(id,msg,type=""){const el=document.getElementById(id);el.textContent=msg;el.className="notice"+(type?" "+type:"");el.classList.remove("hidden")}
+function safeName(s){return String(s||"PE_REFLECTION").replace(/[\\/:*?"<>|]/g,"_")}
+function getClass(){return teacherData.classInfo||{className:"",students:[],units:[]}}
+function getUnits(){return getClass().units||[]}
+function selectedStudentConfig(){return studentData.config}
+function switchTab(tab){document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));document.getElementById("studentPage").classList.toggle("hidden",tab!=="student");document.getElementById("teacherPage").classList.toggle("hidden",tab!=="teacher")}
+document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
+function makeLessonOptions(sel,count,chosen){sel.innerHTML="";for(let i=1;i<=count;i++){const o=document.createElement("option");o.value=String(i);o.textContent=`第${i}時`;sel.appendChild(o)}if(chosen)sel.value=String(chosen)}
+function renderRoster(){const root=document.getElementById("rosterEditor");root.innerHTML="";getClass().students.forEach((s,i)=>{const row=document.createElement("div");row.className="student-item";row.innerHTML=`<input aria-label="生徒名${i+1}" value="${esc(s.name)}" data-student-id="${esc(s.id)}"><button class="btn red small" type="button">削除</button>`;row.querySelector("button").addEventListener("click",()=>{teacherData.classInfo.students=teacherData.classInfo.students.filter(x=>x.id!==s.id);renderRoster()});root.appendChild(row)})}
+function readRoster(){const inputs=[...document.querySelectorAll("#rosterEditor input")];const next=[];for(const input of inputs){const name=input.value.trim();if(!name)continue;const id=input.dataset.studentId||uid();next.push({id,name})}return next}
+function refreshStudentConfig(){const cfg=selectedStudentConfig();const status=document.getElementById("studentConfigStatus");if(!cfg){status.textContent="クラス設定ファイルはまだ読み込まれていません。";document.getElementById("studentWork").classList.add("hidden");return}status.textContent=`${cfg.className||"クラス名未設定"} の設定を読み込みました。名簿 ${cfg.students.length}人 / 単元 ${cfg.units.length}件`;status.className="notice success";document.getElementById("studentWork").classList.remove("hidden");const unit=document.getElementById("studentUnit");unit.innerHTML="";cfg.units.forEach(u=>{const o=document.createElement("option");o.value=u.id;o.textContent=u.name;unit.appendChild(o)});refreshStudentLesson();const name=document.getElementById("studentName");name.innerHTML='<option value="">自分の名前を選択</option>';cfg.students.forEach(s=>{const o=document.createElement("option");o.value=s.id;o.textContent=s.name;name.appendChild(o)});const mvp=document.getElementById("mvpName");mvp.innerHTML='<option value="">選択してください</option><option value="__none__">選ばない</option>';cfg.students.forEach(s=>{const o=document.createElement("option");o.value=s.id;o.textContent=s.name;mvp.appendChild(o)});renderMyRecords()}
+function refreshStudentLesson(){const cfg=studentData.config;if(!cfg)return;const u=cfg.units.find(x=>x.id===document.getElementById("studentUnit").value)||cfg.units[0];if(u)makeLessonOptions(document.getElementById("studentLesson"),u.lessonCount);loadExistingStudentRecord()}
+function loadExistingStudentRecord(){const cfg=studentData.config;if(!cfg)return;const sid=document.getElementById("studentName").value;const unitId=document.getElementById("studentUnit").value;const lesson=Number(document.getElementById("studentLesson").value);const rec=studentData.records.find(r=>r.studentId===sid&&r.unitId===unitId&&r.lesson===lesson);document.getElementById("existingHint").textContent=rec?"この授業の保存済み記録があります。内容を編集して保存できます。":"この授業の記録はまだありません。";document.getElementById("challenge").value=rec?.challenge||"";document.getElementById("selfEval").value=rec?.selfEval||"";document.getElementById("reflection").value=rec?.reflection||"";document.getElementById("mvpName").value=rec?.mvpStudentId||"";document.getElementById("mvpReason").value=rec?.mvpReason||""}
+document.getElementById("studentConfigBtn").addEventListener("click",()=>document.getElementById("studentConfigFile").click());
+document.getElementById("studentConfigFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const cfg=await readJsonFile(f);if(cfg.type!=="PE_REFLECTION_CLASS_CONFIG"||!Array.isArray(cfg.students)||!Array.isArray(cfg.units))throw new Error("PE REFLECTIONのクラス設定ファイルではありません。");studentData.config=cfg;save(STUDENT_KEY,studentData);refreshStudentConfig()}catch(err){notice("studentConfigStatus",err.message,"danger")}e.target.value=""});
+document.getElementById("studentUnit").addEventListener("change",refreshStudentLesson);
+document.getElementById("studentLesson").addEventListener("change",loadExistingStudentRecord);
+document.getElementById("studentName").addEventListener("change",loadExistingStudentRecord);
+document.getElementById("saveReflection").addEventListener("click",()=>{const cfg=studentData.config;if(!cfg)return;const sid=document.getElementById("studentName").value;if(!sid){notice("studentMessage","自分の名前を選択してください。","warning");return}const unit=cfg.units.find(u=>u.id===document.getElementById("studentUnit").value);const lesson=Number(document.getElementById("studentLesson").value);const selfEval=document.getElementById("selfEval").value;if(!selfEval){notice("studentMessage","自己評価を選択してください。","warning");return}const old=studentData.records.find(r=>r.studentId===sid&&r.unitId===unit.id&&r.lesson===lesson);const rec={recordId:old?.recordId||uid(),classId:cfg.classId,className:cfg.className,studentId:sid,studentName:cfg.students.find(s=>s.id===sid)?.name||"",unitId:unit.id,unitName:unit.name,lesson,challenge:document.getElementById("challenge").value.trim(),selfEval,reflection:document.getElementById("reflection").value.trim(),mvpStudentId:document.getElementById("mvpName").value==="__none__"?"":document.getElementById("mvpName").value,mvpStudentName:cfg.students.find(s=>s.id===document.getElementById("mvpName").value)?.name||"",mvpReason:document.getElementById("mvpReason").value.trim(),updatedAt:new Date().toISOString()};if(old)studentData.records=studentData.records.map(r=>r.recordId===old.recordId?rec:r);else studentData.records.push(rec);save(STUDENT_KEY,studentData);notice("studentMessage","振り返りをこの端末に保存しました。提出ファイルを書き出して先生に提出してください。","success");renderMyRecords();loadExistingStudentRecord()});
+document.getElementById("exportStudent").addEventListener("click",()=>{const cfg=studentData.config;const sid=document.getElementById("studentName").value;if(!cfg||!sid){notice("studentMessage","クラス設定と自分の名前を選択してください。","warning");return}const records=studentData.records.filter(r=>r.studentId===sid);if(!records.length){notice("studentMessage","保存済みの記録がありません。先に振り返りを保存してください。","warning");return}const payload={type:"PE_REFLECTION_SUBMISSION",version:1,classId:cfg.classId,className:cfg.className,studentId:sid,studentName:cfg.students.find(s=>s.id===sid)?.name||"",exportedAt:new Date().toISOString(),records};download(`PE_REFLECTION_${safeName(payload.studentName)}.json`,JSON.stringify(payload,null,2));notice("studentMessage",`${records.length}件の記録を提出ファイルに書き出しました。`,"success")});
+function renderMyRecords(){const root=document.getElementById("myRecords");if(!studentData.records.length){root.innerHTML='<p class="muted">保存済みの記録はありません。</p>';return}const records=[...studentData.records].sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt));root.innerHTML=`<div class="tablewrap"><table><thead><tr><th>単元・時数</th><th>自己評価</th><th>保存日時</th></tr></thead><tbody>${records.map(r=>`<tr><td>${esc(r.unitName)} 第${r.lesson}時</td><td>${esc(r.selfEval)}</td><td>${esc(new Date(r.updatedAt).toLocaleString("ja-JP"))}</td></tr>`).join("")}</tbody></table></div>`}
+document.querySelectorAll(".voice").forEach(btn=>btn.addEventListener("click",()=>{const target=document.getElementById(btn.dataset.target);const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert("このブラウザは音声入力に対応していません。キーボードで入力してください。");return}const rec=new SR();rec.lang="ja-JP";rec.interimResults=false;rec.maxAlternatives=1;btn.disabled=true;btn.textContent="音声を認識中…";rec.onresult=e=>{target.value+=(target.value?"":"")+e.results[0][0].transcript};rec.onerror=e=>alert("音声入力を利用できませんでした。キーボードで入力してください。");rec.onend=()=>{btn.disabled=false;btn.textContent="音声入力"};rec.start()}));
+
+function renderTeacherSetup(){const c=getClass();document.getElementById("className").value=c.className||"";document.getElementById("unitName").value=c.units?.[0]?.name||"";document.getElementById("lessonCount").value=c.units?.[0]?.lessonCount||8;renderRoster()}
+document.getElementById("addStudent").addEventListener("click",()=>{getClass().students.push({id:uid(),name:""});renderRoster()});
+document.getElementById("saveClass").addEventListener("click",()=>{const className=document.getElementById("className").value.trim();const unitName=document.getElementById("unitName").value.trim();const lessonCount=Math.max(1,Math.min(100,Number(document.getElementById("lessonCount").value)||1));const students=readRoster();if(!className||!unitName){notice("setupMessage","クラス名と単元名を入力してください。","warning");return}if(!students.length){notice("setupMessage","生徒名簿を1人以上登録してください。","warning");return}if(new Set(students.map(s=>s.name)).size!==students.length){notice("setupMessage","同じ名前が複数あります。区別できる表記にしてください。","warning");return}const old=getClass();const unit=old.units?.[0];teacherData.classInfo={classId:old.classId||uid(),className,students,units:[{id:unit?.id||uid(),name:unitName,lessonCount}]};save(DB_KEY,teacherData);renderRoster();refreshDashboard();notice("setupMessage","クラス設定を保存しました。続けてクラス設定ファイルを書き出し、生徒に配布してください。","success")});
+document.getElementById("exportConfig").addEventListener("click",()=>{const c=getClass();if(!c.className||!c.students.length||!c.units.length){notice("setupMessage","先にクラス情報を保存してください。","warning");return}const cfg={type:"PE_REFLECTION_CLASS_CONFIG",version:1,classId:c.classId,className:c.className,students:c.students,units:c.units,createdAt:new Date().toISOString()};download(`PE_REFLECTION_${safeName(c.className)}_クラス設定.json`,JSON.stringify(cfg,null,2));notice("setupMessage","クラス設定ファイルを書き出しました。生徒に配布してください。","success")});
+document.getElementById("teacherLoginBtn").addEventListener("click",()=>{const entered=document.getElementById("teacherPasswordInput").value;const expected=localStorage.getItem(PASS_KEY)||DEFAULT_PASS;if(entered===expected){loggedIn=true;document.getElementById("teacherLogin").classList.add("hidden");document.getElementById("teacherDashboard").classList.remove("hidden");renderTeacherSetup();refreshDashboard();document.getElementById("loginMessage").classList.add("hidden")}else notice("loginMessage","パスワードが違います。","danger")});
+document.getElementById("teacherPasswordInput").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("teacherLoginBtn").click()});
+document.getElementById("logoutBtn").addEventListener("click",()=>{loggedIn=false;document.getElementById("teacherDashboard").classList.add("hidden");document.getElementById("teacherLogin").classList.remove("hidden");document.getElementById("teacherPasswordInput").value=""});
+document.getElementById("changePassword").addEventListener("click",()=>{const old=localStorage.getItem(PASS_KEY)||DEFAULT_PASS;const a=document.getElementById("oldPassword").value,b=document.getElementById("newPassword").value,c=document.getElementById("confirmPassword").value;if(a!==old){notice("passwordMessage","現在のパスワードが違います。","danger");return}if(b.length<6){notice("passwordMessage","新しいパスワードは6文字以上にしてください。","warning");return}if(b!==c){notice("passwordMessage","新しいパスワードが一致しません。","warning");return}localStorage.setItem(PASS_KEY,b);["oldPassword","newPassword","confirmPassword"].forEach(id=>document.getElementById(id).value="");notice("passwordMessage","パスワードを変更しました。","success")});
+document.getElementById("importSubmissionsBtn").addEventListener("click",()=>document.getElementById("submissionFiles").click());
+document.getElementById("submissionFiles").addEventListener("change",async e=>{const files=[...e.target.files];if(!files.length)return;let added=0,updated=0,skipped=0,errors=[];for(const f of files){try{const p=await readJsonFile(f);if(p.type!=="PE_REFLECTION_SUBMISSION"||!Array.isArray(p.records))throw new Error("提出ファイル形式ではありません");if(getClass().classId&&p.classId!==getClass().classId)throw new Error(`${p.studentName||f.name}：別のクラスのファイルです`);for(const r of p.records){if(!r.recordId||!r.studentId||!r.unitId||!Number(r.lesson)){skipped++;continue}const idx=teacherData.records.findIndex(x=>x.recordId===r.recordId);if(idx>=0){if(new Date(r.updatedAt||0)>=new Date(teacherData.records[idx].updatedAt||0)){teacherData.records[idx]=r;updated++}else skipped++}else{teacherData.records.push(r);added++}}}catch(err){errors.push(`${f.name}: ${err.message}`)}}save(DB_KEY,teacherData);refreshDashboard();let msg=`読み込み完了：新規 ${added}件、更新 ${updated}件、スキップ ${skipped}件。`;if(errors.length)msg+=" 読み込めなかったファイル："+errors.join(" / ");notice("importMessage",msg,errors.length?"warning":"success");e.target.value=""});
+function currentFilteredRecords(){const u=document.getElementById("filterUnit").value;const l=Number(document.getElementById("filterLesson").value);return teacherData.records.filter(r=>(!u||r.unitId===u)&&(!l||r.lesson===l))}
+function refreshDashboard(){if(!loggedIn)return;const c=getClass();const unitSel=document.getElementById("filterUnit");const prev=unitSel.value;unitSel.innerHTML="";(c.units||[]).forEach(u=>{const o=document.createElement("option");o.value=u.id;o.textContent=u.name;unitSel.appendChild(o)});if(prev)unitSel.value=prev;const unit=c.units?.find(u=>u.id===unitSel.value)||c.units?.[0];makeLessonOptions(document.getElementById("filterLesson"),unit?.lessonCount||1,document.getElementById("filterLesson").value||1);const studentSel=document.getElementById("recordStudentFilter");const prevS=studentSel.value;studentSel.innerHTML='<option value="">全員</option>';c.students.forEach(s=>{const o=document.createElement("option");o.value=s.id;o.textContent=s.name;studentSel.appendChild(o)});studentSel.value=prevS;renderSummary();renderIndividual()}
+document.getElementById("filterUnit").addEventListener("change",()=>{const u=getUnits().find(x=>x.id===document.getElementById("filterUnit").value);makeLessonOptions(document.getElementById("filterLesson"),u?.lessonCount||1);renderSummary();renderIndividual()});
+document.getElementById("filterLesson").addEventListener("change",()=>{renderSummary();renderIndividual()});
+document.getElementById("recordStudentFilter").addEventListener("change",renderIndividual);
+function renderSummary(){const root=document.getElementById("summaryArea");const records=currentFilteredRecords();const c=getClass();const expected=c.students.length;const submitted=new Set(records.map(r=>r.studentId)).size;const counts={A:0,B:0,C:0};records.forEach(r=>{if(counts[r.selfEval]!==undefined)counts[r.selfEval]++});const mvp={};records.forEach(r=>{if(r.mvpStudentId)mvp[r.mvpStudentName||r.mvpStudentId]=(mvp[r.mvpStudentName||r.mvpStudentId]||0)+1});const ranking=Object.entries(mvp).sort((a,b)=>b[1]-a[1]);const missing=c.students.filter(s=>!records.some(r=>r.studentId===s.id));const pct=n=>records.length?Math.round(n/records.length*100):0;root.innerHTML=`<div class="grid3"><div class="stat"><strong>${records.length}</strong><span>提出記録数</span></div><div class="stat"><strong>${submitted}/${expected}</strong><span>提出者数</span></div><div class="stat"><strong>${expected?Math.round(submitted/expected*100):0}%</strong><span>提出率</span></div></div><h3>自己評価</h3><div class="grid3">${["A","B","C"].map(k=>`<div class="stat"><strong>${counts[k]}</strong><span>${k}評価 / ${pct(counts[k])}%</span></div>`).join("")}</div><h3>MVPランキング</h3>${ranking.length?`<ol>${ranking.map(([n,v])=>`<li>${esc(n)}：${v}票</li>`).join("")}</ol>`:'<p class="muted">MVPの選出記録はありません。</p>'}<h3>未提出者</h3>${missing.length?missing.map(s=>`<span class="chip">${esc(s.name)}</span>`).join(""):'<span class="chip">全員提出済み</span>'}<h3>振り返り一覧</h3><div class="tablewrap"><table><thead><tr><th>生徒</th><th>課題</th><th>評価</th><th>分かったこと・次回</th><th>MVP</th><th>理由</th></tr></thead><tbody>${records.map(r=>`<tr><td>${esc(r.studentName)}</td><td>${esc(r.challenge)}</td><td>${esc(r.selfEval)}</td><td>${esc(r.reflection)}</td><td>${esc(r.mvpStudentName)}</td><td>${esc(r.mvpReason)}</td></tr>`).join("")||'<tr><td colspan="6">この授業の記録はまだありません。</td></tr>'}</tbody></table></div>`}
+function renderIndividual(){const id=document.getElementById("recordStudentFilter").value;const records=teacherData.records.filter(r=>!id||r.studentId===id).sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));const root=document.getElementById("individualRecords");root.innerHTML=records.length?records.map(r=>`<div class="card" style="box-shadow:none;background:#fafbfd"><strong>${esc(r.studentName)} / ${esc(r.unitName)} 第${r.lesson}時</strong><div class="small muted">${esc(new Date(r.updatedAt).toLocaleString("ja-JP"))}</div><p><b>今日の課題：</b>${esc(r.challenge)||"（未入力）"}</p><p><b>自己評価：</b>${esc(r.selfEval)}</p><p><b>分かったこと・次回：</b>${esc(r.reflection)||"（未入力）"}</p><p><b>MVP：</b>${esc(r.mvpStudentName)||"選出なし"}</p><p><b>理由：</b>${esc(r.mvpReason)||"（未入力）"}</p></div>`).join(""):'<p class="muted">該当する記録はありません。</p>'}
+function csvEscape(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
+function recordsToCsv(records){const headers=["クラス","生徒名","単元","授業時数","今日の課題","自己評価","分かったこと・次回","MVP","MVPを選んだ理由","最終更新"];const rows=records.map(r=>[r.className,r.studentName,r.unitName,r.lesson,r.challenge,r.selfEval,r.reflection,r.mvpStudentName,r.mvpReason,r.updatedAt]);return "\uFEFF"+[headers,...rows].map(row=>row.map(csvEscape).join(",")).join("\r\n")}
+document.getElementById("exportCsv").addEventListener("click",()=>{const records=currentFilteredRecords();if(!records.length){alert("書き出す記録がありません。");return}download("PE_REFLECTION_授業別.csv",recordsToCsv(records),"text/csv;charset=utf-8")});
+document.getElementById("exportAllCsv").addEventListener("click",()=>{if(!teacherData.records.length){alert("書き出す記録がありません。");return}download("PE_REFLECTION_全記録.csv",recordsToCsv(teacherData.records),"text/csv;charset=utf-8")});
+document.getElementById("backupTeacher").addEventListener("click",()=>download("PE_REFLECTION_先生データバックアップ.json",JSON.stringify({type:"PE_REFLECTION_TEACHER_BACKUP",version:1,data:teacherData},null,2)));
+document.getElementById("restoreTeacherBtn").addEventListener("click",()=>document.getElementById("restoreTeacherFile").click());
+document.getElementById("restoreTeacherFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const p=await readJsonFile(f);if(p.type!=="PE_REFLECTION_TEACHER_BACKUP"||!p.data?.classInfo||!Array.isArray(p.data.records))throw new Error("先生用バックアップではありません");if(!confirm("現在の先生端末のクラス設定と記録を、バックアップ内容で置き換えますか？"))return;teacherData=p.data;save(DB_KEY,teacherData);renderTeacherSetup();refreshDashboard();notice("backupMessage","バックアップを復元しました。","success")}catch(err){notice("backupMessage",err.message,"danger")}e.target.value=""});
+
+renderTeacherSetup();
+refreshStudentConfig();
+</script>
+</body>
+</html>
